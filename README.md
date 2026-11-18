@@ -4,9 +4,11 @@
 
 > [!CAUTION]
 > This software is intended for **OFF-ROAD USE ONLY**.
-> Tested only on EPS software **`5N1909144S_1501`**.
 >
 > The software is provided as is, without warranty. The author accepts no responsibility for its use or any consequences.
+
+> [!WARNING]
+> Tested only on EPS software **`5N1909144S_1501`**.
 
 Edits the HCA lower speed threshold and time limit in standalone VW APA EPS parameter `.sgo` files.
 
