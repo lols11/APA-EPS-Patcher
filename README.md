@@ -14,7 +14,7 @@ Edits the HCA lower speed threshold and time limit in standalone VW APA EPS para
 
 **Maximum time limit:** 655.35 s (10 min 55.35 s). Enter `655` to select it.
 
-**Timer reset:** Return HCA to ready status (`0x03`) for at least 1 s (100 cycles at 10 ms), then start a new active request. This transition reloads the configured HCA time limit. A zero torque value while the request remains active (status `0x05` or `0x07`) does not reset the timer. The reset delay is fixed in firmware. A firmware patch to change it is planned.
+**Timer reset after timeout:** This procedure applies only after HCA reaches the configured maximum time limit. Return HCA to ready status (`0x03`) for at least 1 s (100 cycles at 10 ms), then start a new active request. This transition reloads the configured HCA time limit. A zero torque value while the request remains active (status `0x05` or `0x07`) does not reset the timer. The reset delay is fixed in firmware. A firmware patch to change it is planned.
 
 - **Python CLI** ([`APA.HCA.patcher.py`](https://github.com/lols11/APA-EPS-Patcher/releases/latest/download/APA.HCA.patcher.py)): run `python3 APA.HCA.patcher.py parameters.sgo` with Python 3.8 or newer. Press Enter to keep the current value. The source file is [`APA HCA patcher.py`](APA%20HCA%20patcher.py).
 - **Windows x64** ([`APA.HCA.patcher.exe`](https://github.com/lols11/APA-EPS-Patcher/releases/latest/download/APA.HCA.patcher.exe)): open the `.sgo` in the GUI, edit the values, and select **Save As…**. Use `-nogui` for text mode.
