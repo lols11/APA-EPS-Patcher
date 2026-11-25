@@ -1,24 +1,15 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT AND Beerware
 """APA HCA patcher for Windows, with GUI and text modes."""
 
 import argparse
 from importlib import import_module
-import math
 from pathlib import Path
 import struct
 import sys
-import time
 
 APP_NAME = "APA HCA patcher"
 sgo = import_module(APP_NAME)
-
-
-STARTUP_SECONDS = 5
-STARTUP_NOTICE = (
-    'This software is provided "AS IS" without warranty of any kind. '
-    'I accept no responsibility for its use or for any consequences.\n\n'
-    'Vehicles with edited parameters should not be driven on public roads.'
-)
 
 
 class Package:
@@ -53,8 +44,7 @@ class Package:
 
 def run_cli(args):
     try:
-        print(f"Disclaimer\n\n{STARTUP_NOTICE}\n", file=sys.stderr, flush=True)
-        time.sleep(STARTUP_SECONDS)
+        print(sgo.COPYRIGHT_NOTICE, file=sys.stderr, flush=True)
         name = args.sgo or input("SGO file: ").strip()
         sgo.require(bool(name), "No SGO file specified.")
         if len(name) >= 2 and name[0] == name[-1] and name[0] in "\"'":
@@ -204,17 +194,12 @@ def run_gui(args):
     footer = ttk.Frame(content)
     footer.grid(row=4, column=0, sticky="sw", pady=(16, 0))
     default_font = font.nametofont("TkDefaultFont")
-    free_font = default_font.copy()
-    size = int(default_font.cget("size"))
-    free_font.configure(size=size + (4 if size > 0 else -4), weight="bold")
-    ttk.Label(footer, text="FREE FOR ALL.", foreground="#b00020", font=free_font).grid(
-        row=0, column=0, sticky="w")
-    ttk.Label(footer, text="BY LOLS11   v1.0").grid(row=0, column=1, sticky="w", padx=(4, 0))
+    ttk.Label(footer, text=sgo.COPYRIGHT_NOTICE).grid(row=0, column=0, sticky="w")
     link_font = default_font.copy()
     link_font.configure(underline=True)
     support_link = ttk.Label(footer, text="If you want to support me or check out my work",
                              foreground="#005a9c", font=link_font, cursor="hand2", takefocus=True)
-    support_link.grid(row=1, column=0, columnspan=2, sticky="w", pady=(4, 0))
+    support_link.grid(row=1, column=0, sticky="w", pady=(4, 0))
 
     def open_support(_event):
         webbrowser.open("https://linktr.ee/lols11")
@@ -222,44 +207,10 @@ def run_gui(args):
     for event in ("<Button-1>", "<Return>", "<space>"):
         support_link.bind(event, open_support)
 
-    warning = ttk.Frame(root, padding=24)
-    warning.grid(row=0, column=0, sticky="nsew")
-    ttk.Label(warning, text="Disclaimer", font="TkHeadingFont").grid(sticky="w")
-    ttk.Label(warning, text=STARTUP_NOTICE, wraplength=565, justify="left").grid(
-        sticky="w", pady=(12, 0))
-
-    def show_editor():
-        warning.destroy()
-        content.grid(row=0, column=0, sticky="nsew")
-        open_button.focus_set()
-        if args.sgo:
-            open_package(args.sgo)
-
-    buttons = ttk.Frame(warning)
-    buttons.grid(row=2, column=0, sticky="e", pady=(16, 0))
-    accept = ttk.Button(buttons, text=f"OK ({STARTUP_SECONDS} s)", width=11,
-                        command=show_editor, state="disabled")
-    accept.grid(row=0, column=0, padx=(0, 8))
-    cancel = ttk.Button(buttons, text="Cancel", command=root.destroy)
-    cancel.grid(row=0, column=1)
-    cancel.focus_set()
-
-    def update_countdown(deadline):
-        remaining = deadline - time.monotonic()
-        seconds = math.ceil(remaining)
-        if seconds <= 0:
-            accept.configure(text="OK")
-            accept.state(["!disabled"])
-            return
-        accept.configure(text=f"OK ({seconds} s)")
-        delay = math.ceil((remaining - seconds + 1) * 1000)
-        root.after(delay, update_countdown, deadline)
-
-    def start_warning_timer(_event):
-        warning.unbind("<Map>")
-        update_countdown(time.monotonic() + STARTUP_SECONDS)
-
-    warning.bind("<Map>", start_warning_timer)
+    content.grid(row=0, column=0, sticky="nsew")
+    open_button.focus_set()
+    if args.sgo:
+        root.after_idle(open_package, args.sgo)
     root.mainloop()
     return 0
 
@@ -294,16 +245,20 @@ def main():
                         help="New output file in text mode, suggested path in GUI mode.")
     parser.add_argument("-nogui", action="store_true", help="Run only in text mode.")
     parser.add_argument("-experimental", action="store_true", help="Enable torque limit editing.")
+    parser.add_argument("--license", action="store_true", help="Print the MIT and Beerware license texts.")
     argv = sys.argv[1:]
     # argparse still abbreviates single-dash options with allow_abbrev=False.
     options = argv[:argv.index("--")] if "--" in argv else argv
-    text_requested = any(flag in options for flag in ("-nogui", "-h", "--help"))
+    text_requested = any(flag in options for flag in ("-nogui", "-h", "--help", "--license"))
     opened_console = text_requested and ensure_text_console()
     try:
         args = parser.parse_args(argv)
         for flag in ("nogui", "experimental"):
             if getattr(args, flag) and f"-{flag}" not in options:
                 parser.error(f"Pass -{flag} in full.")
+        if args.license:
+            print(sgo.LICENSE_TEXT, end="")
+            return 0
         if args.nogui:
             return run_cli(args)
         return run_gui(args)

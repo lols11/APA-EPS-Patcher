@@ -1,6 +1,7 @@
 # APA-EPS-Patcher
 
 [![License: MIT](https://img.shields.io/static/v1?label=License&message=MIT&color=green)](LICENSE)
+[![License: Beerware](https://img.shields.io/static/v1?label=License&message=Beerware&color=green)](LICENSE-BEERWARE)
 
 > [!CAUTION]
 > This software is intended for **OFF-ROAD USE ONLY**.
@@ -34,7 +35,7 @@ Both fields are stored as little-endian 16-bit values in the decoded SGO paramet
 
 ## License
 
-Released under the [MIT License](LICENSE).
+Licensed under both the [MIT License](LICENSE) and the [Beerware License](LICENSE-BEERWARE). Both sets of terms apply. The Python script and Windows executable print both license texts with `--license`.
 
 [Support my work and explore my other projects](https://linktr.ee/lols11).
 

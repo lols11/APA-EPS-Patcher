@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT AND Beerware
 """Interactive HCA patcher for parameter SGO files with a 0x906326 block.
 
 Python 3 standard library only. Keeps the source and all unrelated bytes intact.
@@ -12,7 +13,6 @@ Validates container sizes, record checksums and the 0x04DA-byte parameter block
 with its CRC. Calibration and RAM-driver fingerprints are not required. Full
 firmware packages are rejected. Fixed parameter offsets are used; checksum
 validation does not establish field semantics for a different firmware family.
-ECU acceptance of modified parameters has not been tested.
 """
 import argparse
 from dataclasses import dataclass
@@ -22,6 +22,41 @@ from pathlib import Path
 import re
 import struct
 import sys
+
+
+COPYRIGHT_NOTICE = "Copyright (c) 2026 lols11 | MIT and Beerware"
+LICENSE_TEXT = """APA HCA patcher is licensed under MIT and Beerware. Both sets of terms apply.
+
+MIT License
+
+Copyright (c) 2026 lols11
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+"THE BEER-WARE LICENSE" (Revision 42)
+
+lols11 wrote this software. As long as you retain this notice, you can
+do whatever you want with this software. If we meet some day and you
+think this software is worth it, you can buy me a beer in return.
+
+lols11
+"""
 
 
 PARAMETER_ADDRESS = 0x906326
@@ -245,21 +280,18 @@ def main():
     parser.add_argument("sgo", nargs="?", help="Path to a standalone SGO parameter package.")
     parser.add_argument("-o", "--output", type=Path, help="New output file; existing files are never overwritten.")
     parser.add_argument("-experimental", action="store_true", help="Enable torque limit editing.")
+    parser.add_argument("--license", action="store_true", help="Print the MIT and Beerware license texts.")
     argv = sys.argv[1:]
     args = parser.parse_args(argv)
     # argparse still abbreviates single-dash options with allow_abbrev=False.
     options = argv[:argv.index("--")] if "--" in argv else argv
     if args.experimental and "-experimental" not in options:
         parser.error("Pass -experimental in full.")
+    if args.license:
+        print(LICENSE_TEXT, end="")
+        return 0
     try:
-        print(
-            'FREE FOR ALL. BY LOLS11   v1.0\n'
-            'This software is provided "AS IS" without warranty of any kind.\n'
-            'I accept no responsibility for its use or for any consequences.\n'
-            'If you want to support me or check out my work, visit https://linktr.ee/lols11\n',
-            file=sys.stderr,
-            flush=True,
-        )
+        print(COPYRIGHT_NOTICE, file=sys.stderr, flush=True)
         name = args.sgo or input("SGO file: ").strip()
         require(bool(name), "No SGO file specified.")
         if len(name) >= 2 and name[0] == name[-1] and name[0] in "\"'":
